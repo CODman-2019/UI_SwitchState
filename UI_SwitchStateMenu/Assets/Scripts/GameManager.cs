@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -12,9 +13,8 @@ public class GameManager : MonoBehaviour
     public GameObject PauseUI;
     public GameObject GameOverUI;
 
-    public GameObject player; 
-
-    //addin map, inventory, stats
+    public GameObject Player;
+    //adding map, inventory, stats
     public enum GameState { TitleScreen, Options, Gameplay, PauseMenu, GameOver};
     
     private GameState currentState;
@@ -22,13 +22,16 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        if (control == null) control = this;
-        else Destroy(this);
+        if (control == null) {
+           DontDestroyOnLoad(this);
+           control = this;
+        }
+        else if(control != this) Destroy(this);
     }
 
- 
+    
 
-    private void Update()
+    public void ChangeScene()
     {
         switch (currentState)
         {
@@ -38,13 +41,7 @@ public class GameManager : MonoBehaviour
                 OptionsUI.SetActive(false);
                 GameplayUI.SetActive(false);
                 GameOverUI.SetActive(false);
-
-                player.SetActive(false);
-
-                //if (Input.GetKeyDown(KeyCode.Return))
-                //{
-                //    currentState = GameState.Gameplay;
-                //}
+                Player.SetActive(false);
                 break;
 
             case GameState.Options:
@@ -53,13 +50,6 @@ public class GameManager : MonoBehaviour
                 OptionsUI.SetActive(true);
                 GameplayUI.SetActive(false);
                 GameOverUI.SetActive(false);
-
-                player.SetActive(false);
-
-                //if (Input.GetKeyDown(KeyCode.Return))
-                //{
-                //    currentState = GameState.TitleScreen;
-                //}
                 break;
 
             case GameState.Gameplay:
@@ -68,13 +58,7 @@ public class GameManager : MonoBehaviour
                 OptionsUI.SetActive(false);
                 GameplayUI.SetActive(true);
                 GameOverUI.SetActive(false);
-
-                player.SetActive(true);
-
-                //if (Input.GetKeyDown(KeyCode.Return))
-                //{
-                //    currentState = GameState.PauseMenu;
-                //}
+                Player.SetActive(true);
                 break;
 
             case GameState.PauseMenu:
@@ -83,11 +67,6 @@ public class GameManager : MonoBehaviour
                 OptionsUI.SetActive(false);
                 GameplayUI.SetActive(false);
                 GameOverUI.SetActive(false);
-
-                //if (Input.GetKeyDown(KeyCode.Return))
-                //{
-                //    currentState = GameState.Options;
-                //}
                 break;
 
             case GameState.GameOver:
@@ -96,9 +75,7 @@ public class GameManager : MonoBehaviour
                 OptionsUI.SetActive(false);
                 GameplayUI.SetActive(false);
                 GameOverUI.SetActive(true);
-
-                player.SetActive(false);
-
+                Player.SetActive(false);
                 break;
         }
     }
@@ -108,13 +85,15 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         lastState = currentState;
         currentState = GameState.Gameplay;
+        ChangeScene();
     }
 
-    public void OnDeath()
+    public void OnGameOver()
     {
-        Time.timeScale = 0f;
+        Time.timeScale = 1f;
         lastState = currentState;
         currentState = GameState.GameOver;
+        ChangeScene();
     }
 
     public void OnPause()
@@ -122,18 +101,20 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 0f;
         lastState = currentState;
         currentState = GameState.PauseMenu;
+        ChangeScene();
     }
 
     public void OpenOptions()
     {
-        Time.timeScale = 0f;
         lastState = currentState;
         currentState = GameState.Options;
+        ChangeScene();
     }
 
     public void ExitOptions()
     {
         currentState = lastState;
+        ChangeScene();
     }
 
     public void OnResume()
@@ -141,13 +122,15 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
         lastState = currentState;
         currentState = GameState.Gameplay;
+        ChangeScene();
     }
 
-    public void ReturnToTitleScreen()
+    public void ToTitleScreen()
     {
-        Time.timeScale = 0f;
+        Time.timeScale = 1f;
         lastState = currentState;
         currentState = GameState.TitleScreen;
+        ChangeScene();
     }
 
     public void ExitAppllication()
